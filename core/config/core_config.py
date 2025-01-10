@@ -4,7 +4,7 @@ from environs import Env
 
 def load_config(path: str | None = None) -> DBConfig:
     env = Env()
-    env.read_env('/home/zanid/OrderData_API/.env')
+    env.read_env(path)
     return DBConfig(
         db_host=env.str("DATABASE_HOST"),
         db_port=env.str("DATABASE_PORT"),

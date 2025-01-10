@@ -25,3 +25,6 @@ class HistoryView(Base):
 
     user = relationship('User', back_populates='history_views')
     product = relationship('Product', back_populates='history_views')
+
+    def __repr__(self):
+        return f'{self.user_id} was view {self.product_id} -- {self.counter_view}'

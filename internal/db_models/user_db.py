@@ -25,3 +25,6 @@ class User(Base):
     )
 
     orders = relationship('Order', back_populates='user')
+
+    def __repr__(self):
+        return f'User - {self.first_name} {self.second_name} with {self.email}'
