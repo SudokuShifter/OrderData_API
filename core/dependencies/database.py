@@ -13,6 +13,9 @@ class DatabaseSessionManager:
         self.session = None
 
     def init_db(self):
+        if self.engine is not None:
+            raise Exception('Database already initialized')
+
         self.engine = create_async_engine(
             url=f'postgresql+asyncpg://{DBConfig.db_user}:{DBConfig.db_password}'
                 f'@{DBConfig.db_host}:{DBConfig.db_port}/{DBConfig.db_name}',
@@ -27,10 +30,11 @@ class DatabaseSessionManager:
             self.session_marker, scopefunc=current_task
         )
 
-    def close(self):
+    async def close(self):
         if self.engine is None:
             raise Exception('DatabaseSessionManager has not been initialized')
-        await self.session.dispose()
+        await self.session.remove()
+        await self.engine.dispose()
 
 
 session_manager = DatabaseSessionManager()
