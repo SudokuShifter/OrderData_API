@@ -35,6 +35,7 @@ coverage.xml
 *.coverage
 *.codecov
 *.hdf5
+alembic.ini
 
 # Installer logs
 pip-log.txt

@@ -26,3 +26,4 @@ class Product(Base):
 
     tag = relationship('Tag', back_populates='products')
     orders = relationship('Order', back_populates='products')
+    history_views = relationship('HistoryView', back_populates='product')

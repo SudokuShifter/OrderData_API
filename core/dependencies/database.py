@@ -1,24 +1,24 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine, async_scoped_session
 from core.config.core_config import load_config
-from core.config.db_config import DBConfig
 from asyncio import current_task
 
 
 class DatabaseSessionManager:
-    load_config()
+
 
     def __init__(self):
         self.engine: AsyncEngine | None = None
         self.session_marker = None
         self.session = None
+        self._config = load_config()
 
     def init_db(self):
         if self.engine is not None:
             raise Exception('Database already initialized')
 
         self.engine = create_async_engine(
-            url=f'postgresql+asyncpg://{DBConfig.db_user}:{DBConfig.db_password}'
-                f'@{DBConfig.db_host}:{DBConfig.db_port}/{DBConfig.db_name}',
+            url=f'postgresql+asyncpg://{self._config.db_user}:{self._config.db_password}'
+                f'@{self._config.db_host}:{self._config.db_port}/{self._config.db_name}',
             pool_size=100, max_overflow=100, pool_pre_ping=True,
         )
 
