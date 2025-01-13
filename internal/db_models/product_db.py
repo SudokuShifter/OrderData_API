@@ -27,3 +27,6 @@ class Product(Base):
     tag = relationship('Tag', back_populates='products')
     orders = relationship('Order', back_populates='products')
     history_views = relationship('HistoryView', back_populates='product')
+
+    def __repr__(self):
+        return f'<Product {self.title} -- {self.price}: {self.description}>'

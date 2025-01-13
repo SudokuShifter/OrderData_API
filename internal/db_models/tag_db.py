@@ -20,3 +20,6 @@ class Tag(Base):
     )
 
     products = relationship(Product, back_populates='tag')
+
+    def __repr__(self):
+        return f'Tag {self.title}: {self.description}'
