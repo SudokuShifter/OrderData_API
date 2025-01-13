@@ -1,10 +1,13 @@
 from typing import Optional
 from internal.models.core import IDMixCoreModel, CoreModel
 
-from pydantic import Field
+from pydantic import Field, ConfigDict
 
 
 class Product(IDMixCoreModel):
+
+    model_config = ConfigDict(from_attributes=True)
+
     title: str = Field(
         min_length=1, max_length=100
     )
@@ -16,6 +19,9 @@ class Product(IDMixCoreModel):
 
 
 class ProductCreate(CoreModel):
+
+    model_config = ConfigDict(from_attributes=True)
+
     title: str = Field(
         min_length=1, max_length=100
     )

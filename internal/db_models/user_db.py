@@ -17,10 +17,10 @@ class User(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
-    first_name: Mapped[str] = mapped_column(
-        String(50), nullable=False
+    username: Mapped[str] = mapped_column(
+        String(50), nullable=False, unique=True
     )
-    second_name: Mapped[str] = mapped_column(
+    real_name: Mapped[str] = mapped_column(
         String(50), nullable=False
     )
     email: Mapped[str] = mapped_column(
@@ -30,10 +30,9 @@ class User(Base):
         String(100), nullable=False
     )
     role: Mapped[RoleUserEnum] = mapped_column(
-        Enum(RoleUserEnum), nullable=False
+        Enum(RoleUserEnum), nullable=False, default=RoleUserEnum.USER
     )
 
-    orders = relationship('Order', back_populates='user')
 
     def __repr__(self):
-        return f'User - {self.first_name} {self.second_name} with {self.email}'
+        return f'User - {self.username} {self.real_name} with {self.email}'

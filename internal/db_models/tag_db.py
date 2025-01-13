@@ -5,6 +5,7 @@ from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 
+
 class Tag(Base):
 
     __tablename__ = 'tags'
