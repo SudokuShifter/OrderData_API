@@ -1,7 +1,13 @@
-from sqlalchemy import Column, Integer, String
+import enum
+from sqlalchemy import Column, Integer, String, Enum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from internal.db_models.core import Base
+
+
+class RoleUserEnum(str, enum.Enum):
+    ADMIN = 'admin'
+    USER = 'user'
 
 
 class User(Base):
@@ -22,6 +28,9 @@ class User(Base):
     )
     password: Mapped[str] = mapped_column(
         String(100), nullable=False
+    )
+    role: Mapped[RoleUserEnum] = mapped_column(
+        Enum(RoleUserEnum), nullable=False
     )
 
     orders = relationship('Order', back_populates='user')

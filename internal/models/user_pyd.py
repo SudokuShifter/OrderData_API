@@ -2,6 +2,8 @@ from internal.models.core import IDMixCoreModel, CoreModel
 
 from pydantic import Field, EmailStr
 
+from typing import Optional
+
 
 class User(IDMixCoreModel):
     first_name: str = Field(
@@ -11,7 +13,6 @@ class User(IDMixCoreModel):
         min_length=1, max_length=100
     )
     email: EmailStr
-    password: str
     phone: str
 
 
@@ -25,3 +26,9 @@ class UserCreate(CoreModel):
     email: EmailStr
     password: str
     phone: str
+    admin_token: Optional[str] = None
+
+
+class UserIn(CoreModel):
+    email: EmailStr
+    password: str
