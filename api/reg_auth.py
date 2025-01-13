@@ -11,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.dependencies.database_session import get_db
 import os
 
+from internal.db_models.user_db import RoleUserEnum
+
 """
 JWT-зависимости
 """
@@ -37,17 +39,18 @@ class LoginRegister:
         self.router = APIRouter()
         self.rep = rep
         self.jwt = JWTToken()
-
+        self.router.add_api_route('/register',
+                                  self.register, methods=["POST"])
 
     @staticmethod
-    def get_token_from_cookies(request: Request):
+    async def get_token_from_cookies(request: Request):
         token = request.cookies.get("token")
         if not token:
             raise HTTPException(401, detail='Not authenticated')
         return token
 
 
-    def get_current_user(self, token: str = Depends(get_token_from_cookies)):
+    async def get_current_user(self, token: str = Depends(get_token_from_cookies)):
         try:
             payload = self.jwt.decode_token(token)
             user = {
@@ -64,19 +67,20 @@ class LoginRegister:
             raise InvalidTokenError('Invalid token')
 
 
-    def register(self, user: UserCreate,
+    async def register(self, user: UserCreate,
                  response: Response, db_session: AsyncSession = Depends(get_db)):
         try:
-            if user.admin_token and user.admin_token == os.getenv('ADMIN_TOKEN'):
-                pass
-            pass
+            role = RoleUserEnum.ADMIN if (user.admin_token and
+                                          user.admin_token == os.getenv('ADMIN_TOKEN')) else RoleUserEnum.USER
+            res = await self.rep.register(user, db_session, role)
+
             return JSONResponse(content={'success': True,
-                                         'detail': f'Success register with {user.email}'},
+                                         'detail': f'Success register with data: {res}'},
                                 headers=response.headers)
         except HTTPException:
             raise HTTPException(status_code=400, detail='Invalid credentials')
 
 
-    def login(self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    async def login(self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
               response: Response, db_session: AsyncSession = Depends(get_db)):
         pass

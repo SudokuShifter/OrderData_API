@@ -13,7 +13,6 @@ class User(IDMixCoreModel):
         min_length=1, max_length=100
     )
     email: EmailStr
-    phone: str
 
 
 class UserCreate(CoreModel):
@@ -25,7 +24,6 @@ class UserCreate(CoreModel):
     )
     email: EmailStr
     password: str
-    phone: str
     admin_token: Optional[str] = None
 
 
