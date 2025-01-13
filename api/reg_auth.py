@@ -5,8 +5,10 @@ from http.client import responses
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
+from pydantic import EmailStr
+from pydantic.dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.dependencies.database_session import get_db
 import os
@@ -28,7 +30,6 @@ from internal.models.user_pyd import UserCreate, UserIn
 from internal.models.product_pyd import ProductCreate
 
 
-
 class LoginRegister:
     """
     Класс LoginRegister отвечает за полный спектр возможностей юзера в рамках регистрации и авторизации
@@ -41,6 +42,11 @@ class LoginRegister:
         self.jwt = JWTToken()
         self.router.add_api_route('/register',
                                   self.register, methods=["POST"])
+        self.router.add_api_route('/login',
+                                  self.login, methods=["POST"])
+        self.router.add_api_route('/logout',
+                                  self.logout, methods=["POST"])
+
 
     @staticmethod
     async def get_token_from_cookies(request: Request):
@@ -70,17 +76,46 @@ class LoginRegister:
     async def register(self, user: UserCreate,
                  response: Response, db_session: AsyncSession = Depends(get_db)):
         try:
-            role = RoleUserEnum.ADMIN if (user.admin_token and
-                                          user.admin_token == os.getenv('ADMIN_TOKEN')) else RoleUserEnum.USER
-            res = await self.rep.register(user, db_session, role)
+            is_admin = True if (user.admin_token and
+                                          user.admin_token == os.getenv('ADMIN_TOKEN')) else False
+            res = await self.rep.register(user, db_session, is_admin)
 
             return JSONResponse(content={'success': True,
                                          'detail': f'Success register with data: {res}'},
                                 headers=response.headers)
-        except HTTPException:
-            raise HTTPException(status_code=400, detail='Invalid credentials')
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=e.__str__())
 
 
     async def login(self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
               response: Response, db_session: AsyncSession = Depends(get_db)):
-        pass
+        try:
+            user = UserIn(email=form_data.username, password=form_data.password)
+            user_in_db = await self.rep.login(user, db_session)
+            if user_in_db:
+                jwt_token = self.jwt.generate_token(
+                    {'user_id': user_in_db.id,
+                    'role': user_in_db.role,
+                    'email': user_in_db.email
+                     }
+                )
+                response.set_cookie('token', jwt_token, httponly=True)
+                return JSONResponse(content=
+                                    {'success': True,
+                                     'detail': f'Success login with data: {user_in_db.email} '
+                                               f'and role: {user_in_db.role}'},
+                                    headers=response.headers)
+        except Exception as e:
+            raise HTTPException(status_code=401, detail=e.__str__())
+
+
+    async def logout(self, response: Response):
+        try:
+            user = await self.get_current_user()
+            response.set_cookie('token', 'None', httponly=True)
+            return JSONResponse(content=
+                                {'success': True,
+                                 'detail': f'Success logout with data: {user.get("email")}'}
+                                )
+        except HTTPException as e:
+            raise HTTPException(status_code=401, detail=e.__str__())

@@ -2,6 +2,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, Asyn
 from core.config.core_config import load_config_db
 from asyncio import current_task
 
+from pkg.color_print import PrintColors
+
 
 class DatabaseSessionManager:
 
@@ -29,6 +31,7 @@ class DatabaseSessionManager:
         self.session = async_scoped_session(
             self.session_marker, scopefunc=current_task
         )
+        print(PrintColors.OKGREEN + 'Database initialized' + PrintColors.ENDC)
 
     async def close(self):
         if self.engine is None:
