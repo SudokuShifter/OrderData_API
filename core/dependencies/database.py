@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine, async_scoped_session
-from core.config.core_config import load_config
+from core.config.core_config import load_config_db
 from asyncio import current_task
 
 
@@ -10,7 +10,7 @@ class DatabaseSessionManager:
         self.engine: AsyncEngine | None = None
         self.session_marker = None
         self.session = None
-        self._config = load_config()
+        self._config = load_config_db()
 
     def init_db(self):
         if self.engine is not None:

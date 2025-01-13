@@ -1,8 +1,10 @@
 from core.config.db_config import DBConfig
 from environs import Env
 
+from core.config.jwt_config import JWTConfig
 
-def load_config(path: str | None = None) -> DBConfig:
+
+def load_config_db(path: str | None = None) -> DBConfig:
     env = Env()
     env.read_env(path)
     return DBConfig(
@@ -11,4 +13,13 @@ def load_config(path: str | None = None) -> DBConfig:
         db_password=env.str("DATABASE_PWD"),
         db_user=env.str("PG_USER"),
         db_name=env.str("PG_NAME"),
+    )
+
+
+def load_config_jwt(path: str | None = None) -> JWTConfig:
+    env = Env()
+    env.read_env(path)
+    return JWTConfig(
+        secret=env.str("JWT_SECRET"),
+        algorithm=env.str("JWT_ALGORITHM"),
     )

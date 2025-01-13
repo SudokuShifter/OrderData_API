@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 
 from alembic import context
 
-from core.config.core_config import load_config
+from core.config.core_config import load_config_db
 
 from internal.db_models.core import Base
 from internal.db_models.user_db import User
@@ -20,7 +20,7 @@ from internal.db_models.history_views_db import HistoryView
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-db_config = load_config()
+db_config = load_config_db()
 config.set_main_option('sqlalchemy.url',
                        f'postgresql+asyncpg://{db_config.db_user}:{db_config.db_password}'
                        f'@{db_config.db_host}:{db_config.db_port}/{db_config.db_name}')
