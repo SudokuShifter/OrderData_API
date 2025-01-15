@@ -1,8 +1,7 @@
-from internal.models.core import IDMixCoreModel, CoreModel
-
 from pydantic import Field, EmailStr, ConfigDict
-
 from typing import Optional
+
+from internal.models.core import IDMixCoreModel, CoreModel
 
 
 class User(IDMixCoreModel):

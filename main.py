@@ -3,7 +3,6 @@ from fastapi import FastAPI
 
 from api.reg_auth import LoginRegister
 from core.dependencies.database import session_manager
-
 from internal.repository.users import UserRepository
 
 app = FastAPI()

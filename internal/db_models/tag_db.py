@@ -1,9 +1,8 @@
-from internal.db_models.core import Base
-from internal.db_models.product_db import Product
-
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
+from internal.db_models.core import Base
+from internal.db_models.product_db import Product
 
 
 class Tag(Base):

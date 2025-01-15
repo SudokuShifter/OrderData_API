@@ -1,7 +1,7 @@
-from internal.db_models.core import Base
-
-from sqlalchemy.orm import Mapped, mapped_column, MappedColumn, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Numeric, ForeignKey
+
+from internal.db_models.core import Base
 
 
 class Product(Base):

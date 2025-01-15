@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
+
 import jwt
-import os
 
 from core.config.core_config import load_config_jwt
 

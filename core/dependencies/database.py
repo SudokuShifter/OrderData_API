@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine, async_scoped_session
-from core.config.core_config import load_config_db
 from asyncio import current_task
 
 from pkg.color_print import PrintColors
+from core.config.core_config import load_config_db
 
 
 class DatabaseSessionManager:

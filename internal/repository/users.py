@@ -1,11 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
-
 from passlib.hash import pbkdf2_sha256
 from typing import List
 
-from sqlalchemy.orm import session
 
 from internal.models.user_pyd import UserCreate, UserIn
 from internal.models.user_pyd import User as UserOut

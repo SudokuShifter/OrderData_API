@@ -1,8 +1,6 @@
-from typing import Optional
-from internal.models.core import IDMixCoreModel, CoreModel
-
 from pydantic import Field, ConfigDict
 
+from internal.models.core import IDMixCoreModel, CoreModel
 
 
 class Tag(IDMixCoreModel):
