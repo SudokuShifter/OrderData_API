@@ -5,6 +5,8 @@ from sqlalchemy import or_
 from passlib.hash import pbkdf2_sha256
 from typing import List
 
+from sqlalchemy.orm import session
+
 from internal.models.user_pyd import UserCreate, UserIn
 from internal.models.user_pyd import User as UserOut
 from internal.db_models.user_db import User, RoleUserEnum
@@ -33,9 +35,19 @@ class UserRepository:
 
 
     @staticmethod
-    async def login(user: UserIn, session: AsyncSession) -> User:
+    async def login(user: UserIn, session: AsyncSession) -> User | Exception:
         stmt = select(User).where(User.username == user.username)
         user_in_db = await session.scalar(stmt)
         if user and pbkdf2_sha256.verify(user.password, user_in_db.password):
             return user_in_db
         raise Exception("User does not exist or incorrect data")
+
+    @staticmethod
+    async def delete_account(username: str, session: AsyncSession) -> bool | Exception:
+        stmt = select(User).where(User.username == username)
+        user = await session.scalar(stmt)
+        if user:
+            await session.delete(user)
+            await session.commit()
+            return True
+        raise Exception("User does not exist")

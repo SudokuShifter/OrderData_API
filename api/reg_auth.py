@@ -1,21 +1,15 @@
 """
 Сигнатурные зависимости
 """
-from http.client import responses
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from pydantic import EmailStr
-from pydantic.dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.dependencies.database_session import get_db
 import os
 from api.core import ResponseManager
-
-from internal.db_models.user_db import RoleUserEnum
-
 """
 JWT-зависимости
 """
@@ -25,10 +19,7 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 """
 Pydantic-модели
 """
-from internal.models.tag_pyd import TagCreate
-from internal.models.history_views_pyd import HistoryViewCreate
 from internal.models.user_pyd import UserCreate, UserIn
-from internal.models.product_pyd import ProductCreate
 
 
 class LoginRegister(ResponseManager):
@@ -117,4 +108,15 @@ class LoginRegister(ResponseManager):
                                                    f'Success logout with data: {user.get("email")}',
                                                    None)
         except HTTPException as e:
+            raise HTTPException(status_code=401, detail=e.__str__())
+
+
+    async def del_account(self, token: dict = Depends(get_current_user),
+                          db_session: AsyncSession = Depends(get_db)):
+        try:
+            res = await self.rep.delete_account(token.get('username'), db_session)
+            return LoginRegister.generate_response(res,
+                                                   'User was deleted',
+                                                   None)
+        except Exception as e:
             raise HTTPException(status_code=401, detail=e.__str__())
