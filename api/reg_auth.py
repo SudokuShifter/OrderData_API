@@ -6,12 +6,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
+
 from pydantic import EmailStr
 from pydantic.dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.dependencies.database_session import get_db
 import os
+from api.core import ResponseManager
 
 from internal.db_models.user_db import RoleUserEnum
 
@@ -30,7 +31,7 @@ from internal.models.user_pyd import UserCreate, UserIn
 from internal.models.product_pyd import ProductCreate
 
 
-class LoginRegister:
+class LoginRegister(ResponseManager):
     """
     Класс LoginRegister отвечает за полный спектр возможностей юзера в рамках регистрации и авторизации
     """
@@ -80,9 +81,9 @@ class LoginRegister:
                                           user.admin_token == os.getenv('ADMIN_TOKEN')) else False
             res = await self.rep.register(user, db_session, is_admin)
 
-            return JSONResponse(content={'success': True,
-                                         'detail': f'Success register with data: {res}'},
-                                headers=response.headers)
+            return LoginRegister.generate_response(True,
+                                                   f'Success register with data: {res}',
+                                                   response.headers)
         except Exception as e:
             raise HTTPException(status_code=400, detail=e.__str__())
 
@@ -100,11 +101,10 @@ class LoginRegister:
                      }
                 )
                 response.set_cookie('token', jwt_token, httponly=True)
-                return JSONResponse(content=
-                                    {'success': True,
-                                     'detail': f'Success login with data: {user_in_db.email} '
-                                               f'and role: {user_in_db.role}'},
-                                    headers=response.headers)
+                return LoginRegister.generate_response( True,
+                                                        f'Success login with data: {user_in_db.email}'
+                                                        f'and role: {user_in_db.role}',
+                                                        response.headers)
         except Exception as e:
             raise HTTPException(status_code=401, detail=e.__str__())
 
@@ -113,9 +113,8 @@ class LoginRegister:
         try:
             user = await self.get_current_user()
             response.set_cookie('token', 'None', httponly=True)
-            return JSONResponse(content=
-                                {'success': True,
-                                 'detail': f'Success logout with data: {user.get("email")}'}
-                                )
+            return LoginRegister.generate_response(True,
+                                                   f'Success logout with data: {user.get("email")}',
+                                                   None)
         except HTTPException as e:
             raise HTTPException(status_code=401, detail=e.__str__())
