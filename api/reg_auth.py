@@ -1,6 +1,7 @@
 """
 Сигнатурные зависимости
 """
+from crypt import methods
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
@@ -33,11 +34,13 @@ class LoginRegister(ResponseManager):
         self.rep = rep
         self.jwt = JWTToken()
         self.router.add_api_route('/register',
-                                  self.register, methods=["POST"])
+                                  self.register, methods=['POST'])
         self.router.add_api_route('/login',
-                                  self.login, methods=["POST"])
+                                  self.login, methods=['POST'])
         self.router.add_api_route('/logout',
-                                  self.logout, methods=["POST"])
+                                  self.logout, methods=['POST']),
+        self.router.add_api_route('/get_all_users',
+                           self.get_all_users, methods=['GET'])
 
 
     @staticmethod
