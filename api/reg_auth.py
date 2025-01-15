@@ -1,20 +1,16 @@
 """
 Сигнатурные зависимости
 """
-from http.client import responses
+from crypt import methods
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
-from pydantic import EmailStr
-from pydantic.dataclasses import dataclass
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.dependencies.database_session import get_db
 import os
-
-from internal.db_models.user_db import RoleUserEnum
-
+from api.core import ResponseManager
 """
 JWT-зависимости
 """
@@ -24,13 +20,10 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 """
 Pydantic-модели
 """
-from internal.models.tag_pyd import TagCreate
-from internal.models.history_views_pyd import HistoryViewCreate
-from internal.models.user_pyd import UserCreate, UserIn
-from internal.models.product_pyd import ProductCreate
+from internal.models.user_pyd import UserCreate, UserIn, User
 
 
-class LoginRegister:
+class LoginRegister(ResponseManager):
     """
     Класс LoginRegister отвечает за полный спектр возможностей юзера в рамках регистрации и авторизации
     """
@@ -41,11 +34,13 @@ class LoginRegister:
         self.rep = rep
         self.jwt = JWTToken()
         self.router.add_api_route('/register',
-                                  self.register, methods=["POST"])
+                                  self.register, methods=['POST'])
         self.router.add_api_route('/login',
-                                  self.login, methods=["POST"])
+                                  self.login, methods=['POST'])
         self.router.add_api_route('/logout',
-                                  self.logout, methods=["POST"])
+                                  self.logout, methods=['POST']),
+        self.router.add_api_route('/get_all_users',
+                           self.get_all_users, methods=['GET'])
 
 
     @staticmethod
@@ -73,6 +68,14 @@ class LoginRegister:
             raise InvalidTokenError('Invalid token')
 
 
+    @staticmethod
+    async def is_admin(user: User = Depends(get_current_user)):
+        if user:
+            role = user.get('role')
+            return True if role == 'admin' else False
+        raise HTTPException(status_code=401, detail='Not authenticated')
+
+
     async def register(self, user: UserCreate,
                  response: Response, db_session: AsyncSession = Depends(get_db)):
         try:
@@ -80,9 +83,9 @@ class LoginRegister:
                                           user.admin_token == os.getenv('ADMIN_TOKEN')) else False
             res = await self.rep.register(user, db_session, is_admin)
 
-            return JSONResponse(content={'success': True,
-                                         'detail': f'Success register with data: {res}'},
-                                headers=response.headers)
+            return LoginRegister.generate_response(True,
+                                                   f'Success register with data: {res}',
+                                                   response.headers)
         except Exception as e:
             raise HTTPException(status_code=400, detail=e.__str__())
 
@@ -100,11 +103,10 @@ class LoginRegister:
                      }
                 )
                 response.set_cookie('token', jwt_token, httponly=True)
-                return JSONResponse(content=
-                                    {'success': True,
-                                     'detail': f'Success login with data: {user_in_db.email} '
-                                               f'and role: {user_in_db.role}'},
-                                    headers=response.headers)
+                return LoginRegister.generate_response( True,
+                                                        f'Success login with data: {user_in_db.email}'
+                                                        f'and role: {user_in_db.role}',
+                                                        response.headers)
         except Exception as e:
             raise HTTPException(status_code=401, detail=e.__str__())
 
@@ -113,9 +115,36 @@ class LoginRegister:
         try:
             user = await self.get_current_user()
             response.set_cookie('token', 'None', httponly=True)
-            return JSONResponse(content=
-                                {'success': True,
-                                 'detail': f'Success logout with data: {user.get("email")}'}
-                                )
-        except HTTPException as e:
+            return LoginRegister.generate_response(
+                True,
+                f'Success logout with data: {user.get("email")}',
+                None
+            )
+        except Exception as e:
             raise HTTPException(status_code=401, detail=e.__str__())
+
+
+    async def del_account(self, token: dict = Depends(get_current_user),
+                          db_session: AsyncSession = Depends(get_db)):
+        try:
+            res = await self.rep.delete_account(token.get('username'), db_session)
+            return LoginRegister.generate_response(
+                res,
+                'User was deleted',
+                None
+            )
+        except Exception as e:
+            raise HTTPException(status_code=401, detail=e.__str__())
+
+
+    async def get_all_users(self, response: Response, is_admin: bool = Depends(is_admin),
+                            session: AsyncSession = Depends(get_db)):
+        try:
+            result = await self.rep.get_all_users(is_admin, session)
+            return LoginRegister.generate_response(
+                True,
+                result,
+                response.headers
+            )
+        except Exception as e:
+            raise HTTPException(status_code=403, detail=e.__str__())
