@@ -42,6 +42,7 @@ class UserRepository:
             return user_in_db
         raise Exception("User does not exist or incorrect data")
 
+
     @staticmethod
     async def delete_account(username: str, session: AsyncSession) -> bool | Exception:
         stmt = select(User).where(User.username == username)
@@ -51,3 +52,16 @@ class UserRepository:
             await session.commit()
             return True
         raise Exception("User does not exist")
+
+
+    @staticmethod
+    async def get_all_users(is_admin: bool, session: AsyncSession) -> List[UserOut]:
+        if is_admin:
+            stmt = select(User).where(User.role != RoleUserEnum.ADMIN)
+            result = await session.execute(stmt)
+            users_list = result.scalars().all()
+            return [UserOut(id=user.id,
+                            username=user.username,
+                            real_name=user.real_name,
+                            email=user.email) for user in users_list]
+        raise Exception('You dont have access')

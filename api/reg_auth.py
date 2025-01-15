@@ -19,7 +19,7 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 """
 Pydantic-модели
 """
-from internal.models.user_pyd import UserCreate, UserIn
+from internal.models.user_pyd import UserCreate, UserIn, User
 
 
 class LoginRegister(ResponseManager):
@@ -65,6 +65,14 @@ class LoginRegister(ResponseManager):
             raise InvalidTokenError('Invalid token')
 
 
+    @staticmethod
+    async def is_admin(user: User = Depends(get_current_user)):
+        if user:
+            role = user.get('role')
+            return True if role == 'admin' else False
+        raise HTTPException(status_code=401, detail='Not authenticated')
+
+
     async def register(self, user: UserCreate,
                  response: Response, db_session: AsyncSession = Depends(get_db)):
         try:
@@ -104,10 +112,12 @@ class LoginRegister(ResponseManager):
         try:
             user = await self.get_current_user()
             response.set_cookie('token', 'None', httponly=True)
-            return LoginRegister.generate_response(True,
-                                                   f'Success logout with data: {user.get("email")}',
-                                                   None)
-        except HTTPException as e:
+            return LoginRegister.generate_response(
+                True,
+                f'Success logout with data: {user.get("email")}',
+                None
+            )
+        except Exception as e:
             raise HTTPException(status_code=401, detail=e.__str__())
 
 
@@ -115,8 +125,23 @@ class LoginRegister(ResponseManager):
                           db_session: AsyncSession = Depends(get_db)):
         try:
             res = await self.rep.delete_account(token.get('username'), db_session)
-            return LoginRegister.generate_response(res,
-                                                   'User was deleted',
-                                                   None)
+            return LoginRegister.generate_response(
+                res,
+                'User was deleted',
+                None
+            )
         except Exception as e:
             raise HTTPException(status_code=401, detail=e.__str__())
+
+
+    async def get_all_users(self, response: Response, is_admin: bool = Depends(is_admin),
+                            session: AsyncSession = Depends(get_db)):
+        try:
+            result = await self.rep.get_all_users(is_admin, session)
+            return LoginRegister.generate_response(
+                True,
+                result,
+                response.headers
+            )
+        except Exception as e:
+            raise HTTPException(status_code=403, detail=e.__str__())
