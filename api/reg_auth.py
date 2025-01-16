@@ -1,26 +1,15 @@
-"""
-Сигнатурные зависимости
-"""
-from crypt import methods
-from typing import Annotated
+import os
 
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.dependencies.database_session import get_db
-import os
-from api.core import ResponseManager
-"""
-JWT-зависимости
-"""
-from core.dependencies.JWT import JWTToken
 from jwt import ExpiredSignatureError, InvalidTokenError
 
-"""
-Pydantic-модели
-"""
+from core.dependencies.JWT import JWTToken
 from internal.models.user_pyd import UserCreate, UserIn, User
+from api.core import ResponseManager
 
 
 class LoginRegister(ResponseManager):

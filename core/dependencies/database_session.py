@@ -1,5 +1,4 @@
 from typing import AsyncIterator
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.dependencies.database import session_manager

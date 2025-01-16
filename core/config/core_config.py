@@ -1,7 +1,7 @@
-from core.config.db_config import DBConfig
 from environs import Env
 
 from core.config.jwt_config import JWTConfig
+from core.config.db_config import DBConfig
 
 
 def load_config_db(path: str | None = None) -> DBConfig:

@@ -1,5 +1,4 @@
 from typing import Optional
-
 from fastapi.responses import JSONResponse
 from fastapi import Header
 

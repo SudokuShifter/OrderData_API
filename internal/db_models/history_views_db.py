@@ -1,9 +1,7 @@
-from marshmallow.fields import Integer
-
-from internal.db_models.core import Base
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, ForeignKey
+
+from internal.db_models.core import Base
 
 
 class HistoryView(Base):
