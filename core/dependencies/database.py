@@ -6,8 +6,9 @@ from core.config.core_config import load_config_db
 
 
 class DatabaseSessionManager:
-
-
+    """
+    Класс отвечающий за создание/удаление сессии и инициализацию базы данных
+    """
     def __init__(self):
         self.engine: AsyncEngine | None = None
         self.session_marker = None
