@@ -6,7 +6,10 @@ from core.config.core_config import load_config_jwt
 
 
 class JWTToken:
-
+    """
+    Класс JWTToken имеющий сигнатуру класса singleton, т.е. объект может быть лишь в единственном экземпляре,
+    отвечает за генерацию и декодирование jwt-токенов для авторизации
+    """
     _instance = None
 
     def __new__(cls, *args, **kwargs):
