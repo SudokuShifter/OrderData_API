@@ -5,6 +5,9 @@ from core.config.db_config import DBConfig
 
 
 def load_config_db(path: str | None = None) -> DBConfig:
+    """
+    Возвращает конфиг для подключения к БД
+    """
     env = Env()
     env.read_env(path)
     return DBConfig(
@@ -17,6 +20,9 @@ def load_config_db(path: str | None = None) -> DBConfig:
 
 
 def load_config_jwt(path: str | None = None) -> JWTConfig:
+    """
+    Возвращает конфиг для генерации JWT-токенов
+    """
     env = Env()
     env.read_env(path)
     return JWTConfig(
