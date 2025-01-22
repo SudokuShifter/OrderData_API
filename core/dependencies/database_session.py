@@ -1,10 +1,10 @@
-from typing import AsyncIterator
+from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.dependencies.database import session_manager
 
 
-async def get_db() -> AsyncIterator[AsyncSession]:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Функция get_db возвращает асинхронный генератор.
     Этот генератор можно использовать для получения объектов типа AsyncSession.
