@@ -9,6 +9,10 @@ from internal.models.product_pyd import Product
 
 class ProductRepository:
 
+    """
+    Класс ProductRepository реализует основную логику (CRUD) взаимодействия с моделью Product.
+    """
+
     @staticmethod
     async def get_all_products(session: AsyncSession) -> Sequence[Product]:
         stmt = select(Product)
