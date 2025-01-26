@@ -6,7 +6,9 @@ from typing import List
 
 
 class OrderRepository:
-
-     @staticmethod
-     async def get_all():
-         pass
+    """
+    Класс OrderRepository отвечает за выполнение целевых задач Order-роутера
+    """
+    @staticmethod
+    async def get_all():
+        pass

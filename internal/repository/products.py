@@ -19,6 +19,7 @@ class ProductRepository:
         result = await session.execute(stmt)
         return result.scalars().all()
 
+
     @staticmethod
     async def get_product(session: AsyncSession, product_id: int) -> Product:
         stmt = select(Product).where(Product.id == product_id) #type: ignore
@@ -26,6 +27,7 @@ class ProductRepository:
         if result:
             return Product(**result.scalars().one())
         raise Exception('Product not found')
+
 
     @staticmethod
     async def create_product(session: AsyncSession, product: Product) -> Product:
@@ -41,6 +43,7 @@ class ProductRepository:
         session.add(new_product)
         await session.commit()
         return new_product
+
 
     @staticmethod
     async def update_product(session: AsyncSession, product_id: int, product: Product) -> Product:
